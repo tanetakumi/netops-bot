@@ -1,0 +1,18 @@
+# Cloudflare DNS Manager Discord Bot Requirements
+
+# Discord Bot
+py-cord>=2.4.0
+
+# Web requests
+requests>=2.31.0
+
+# Selenium for router automation
+selenium>=4.15.0
+
+# Environment variables management
+python-dotenv>=1.0.0
+
+# JSON handling (built-in)
+# datetime (built-in)
+# subprocess (built-in)
+# asyncio (built-in)

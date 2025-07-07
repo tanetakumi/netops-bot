@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  cloudflare-discord-bot:
+    build: .
+    network_mode: host
+    volumes:
+      - ./output:/app/output
+      - ./target_domains.json:/app/target_domains.json
+    env_file:
+      - .env
+    restart: unless-stopped
+    container_name: netops-bot
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('http://localhost:4444/wd/hub/status', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  output:
