@@ -5,7 +5,7 @@ Command Line Interface for Cloudflare DNS Manager
 
 import argparse
 import sys
-from config import Config
+from bot_config import Config
 from dns_manager import CloudflareDNSManager
 from utils import log
 

@@ -15,6 +15,9 @@ build/
 # Environment variables
 .env
 
+# Bot configuration (contains sensitive data)
+bot_config.json
+
 # Docker
 .dockerignore
 

@@ -5,7 +5,7 @@ Domain list management for Cloudflare DNS Manager
 
 import json
 from typing import List
-from config import Config
+from bot_config import Config
 from utils import log
 
 class DomainListManager:
@@ -13,47 +13,27 @@ class DomainListManager:
     
     def __init__(self, config: Config):
         self.config = config
-        self.domains_file = config.domains_file
         self.target_domains = self._load_target_domains()
     
     def _load_target_domains(self) -> List[str]:
-        """ドメインリストをファイルから読み込み"""
-        try:
-            with open(self.domains_file, 'r', encoding='utf-8') as f:
-                domains = json.load(f)
-                log(f"ドメインリストを読み込みました: {domains}")
-                return domains
-        except FileNotFoundError:
-            # ファイルが存在しない場合はデフォルトリストを作成
-            default_domains = self.config.default_domains.copy()
-            self._save_target_domains(default_domains)
-            log(f"デフォルトドメインリストを作成しました: {default_domains}")
-            return default_domains
-        except json.JSONDecodeError:
-            log("ドメインリストファイルの形式が無効です。デフォルトリストを使用します", "ERROR")
-            return self.config.default_domains.copy()
-        except Exception as e:
-            log(f"ドメインリスト読み込み中にエラー: {e}", "ERROR")
-            return self.config.default_domains.copy()
+        """ドメインリストを統合設定から読み込み"""
+        domains = self.config.get_target_domains()
+        log(f"ドメインリストを読み込みました: {domains}")
+        return domains
     
     def _save_target_domains(self, domains: List[str] = None) -> bool:
-        """ドメインリストをファイルに保存"""
+        """ドメインリストを保存（統合設定では手動でbot_config.jsonを編集）"""
         if domains is None:
             domains = self.target_domains
         
-        try:
-            with open(self.domains_file, 'w', encoding='utf-8') as f:
-                json.dump(domains, f, ensure_ascii=False, indent=2)
-            log(f"ドメインリストを保存しました: {domains}")
-            return True
-        except Exception as e:
-            log(f"ドメインリスト保存中にエラー: {e}", "ERROR")
-            return False
+        log(f"統合設定では手動でbot_config.jsonを編集してください: {domains}", "WARNING")
+        log("現在の設定ファイルでは自動保存をサポートしていません", "WARNING")
+        return False
     
     def list_domains(self) -> bool:
         """一括更新対象のドメインリストを表示"""
         print(f"\n=== 一括更新対象ドメインリスト ===")
-        print(f"保存ファイル: {self.domains_file}")
+        print(f"設定ファイル: bot_config.json")
         print(f"ドメイン数: {len(self.target_domains)}")
         print()
         

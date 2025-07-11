@@ -1,18 +1,25 @@
-version: '3.8'
-
 services:
-  cloudflare-discord-bot:
+  netops-bot:
     build: .
     network_mode: host
     volumes:
       - ./output:/app/output
-      - ./target_domains.json:/app/target_domains.json
-    env_file:
-      - .env
+      - ./bot_config.json:/app/bot_config.json
+    environment:
+      - TZ=Asia/Tokyo
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_DOMAIN=${CLOUDFLARE_DOMAIN}
+      - ROUTER_IP=${ROUTER_IP}
+      - ROUTER_USER=${ROUTER_USER}
+      - ROUTER_PASS=${ROUTER_PASS}
+      - ROUTER_LOG_CHANNEL_ID=${ROUTER_LOG_CHANNEL_ID}
+      - DEBUG=${DEBUG}
     restart: unless-stopped
     container_name: netops-bot
     healthcheck:
-      test: ["CMD", "python3", "-c", "import requests; requests.get('http://localhost:4444/wd/hub/status', timeout=5)"]
+      test: ["CMD", "pgrep", "-f", "discord_bot.py"]
       interval: 30s
       timeout: 10s
       retries: 3

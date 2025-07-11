@@ -4,7 +4,7 @@ Cloudflare DNS Manager Core Class
 """
 
 from typing import Dict, List, Optional, Tuple
-from config import Config
+from bot_config import Config
 from utils import log, get_current_ip, validate_ipv4, make_request, format_record_table
 from domain_list_manager import DomainListManager
 
@@ -20,7 +20,7 @@ class CloudflareDNSManager:
         url = f"{self.config.base_url}{endpoint}"
         return make_request(method, url, self.config.get_headers(), data, self.config.request_timeout)
     
-    def list_records(self, record_type: Optional[str] = None, name_filter: Optional[str] = None) -> bool:
+    def list_records(self, record_type: Optional[str] = None, name_filter: Optional[str] = None) -> Tuple[bool, List[Dict]]:
         """DNSレコードの一覧表示"""
         log("DNSレコードを取得中...")
         
@@ -37,7 +37,7 @@ class CloudflareDNSManager:
         
         if not success:
             log(f"DNSレコード取得に失敗: {response.get('error', 'Unknown error')}", "ERROR")
-            return False
+            return False, []
         
         records = response.get('result', [])
         
@@ -45,16 +45,8 @@ class CloudflareDNSManager:
         if name_filter:
             records = [r for r in records if name_filter.lower() in r.get('name', '').lower()]
         
-        print(f"\n=== DNS Records for {self.config.domain} ===")
-        print(f"Total: {len(records)} records")
-        if record_type:
-            print(f"Type filter: {record_type}")
-        if name_filter:
-            print(f"Name filter: {name_filter}")
-        print()
-        
-        print(format_record_table(records))
-        return True
+        log(f"取得したDNSレコード数: {len(records)}")
+        return True, records
     
     def create_record(self, name: str, content: Optional[str] = None, record_type: str = "A", 
                      ttl: int = 60, proxied: bool = False) -> bool:

@@ -12,6 +12,9 @@ selenium>=4.15.0
 # Environment variables management
 python-dotenv>=1.0.0
 
+# Cron expression parsing
+croniter>=6.0.0
+
 # JSON handling (built-in)
 # datetime (built-in)
 # subprocess (built-in)

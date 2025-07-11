@@ -13,6 +13,10 @@ ROUTER_IP = os.getenv('ROUTER_IP', '192.168.0.1')
 ROUTER_USER = os.getenv('ROUTER_USER', 'admin')
 ROUTER_PASS = os.getenv('ROUTER_PASS')
 
+# デバッグフラグ
+DEBUG = os.getenv('DEBUG', 'true').lower() == 'true'
+
+
 # Setup Chrome options for Selenium standalone container
 options = Options()
 options.add_argument("--headless")
@@ -196,13 +200,16 @@ try:
                     driver.save_screenshot("/app/output/changed_to_manual.png")
                     print("常時切断に変更した瞬間のスクリーンショットを保存しました: /app/output/changed_to_manual.png")
                     
-                    # 設定ボタンをクリック（コメントアウト）
+                    # 設定ボタンをクリック
                     try:
-                        apply_button = WebDriverWait(driver, 5).until(
-                            EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
-                        )
-                        print("設定ボタンをクリック中...")
-                        apply_button.click()
+                        if DEBUG:
+                            print("デバッグモードのため、設定ボタンをクリックしません")
+                        else:
+                            apply_button = WebDriverWait(driver, 5).until(
+                                EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
+                            )
+                            print("設定ボタンをクリック中...")
+                            apply_button.click()
                         time.sleep(3)
                         print("設定ボタンをクリックしました")
                     except Exception as apply_e:
@@ -221,13 +228,16 @@ try:
                     driver.save_screenshot("/app/output/changed_to_alwayson.png")
                     print("常時接続に戻した瞬間のスクリーンショットを保存しました: /app/output/changed_to_alwayson.png")
                     
-                    # 再度設定ボタンをクリック（コメントアウト）
+                    # 再度設定ボタンをクリック
                     try:
-                        apply_button = WebDriverWait(driver, 5).until(
-                            EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
-                        )
-                        print("設定ボタンを再度クリック中...")
-                        apply_button.click()
+                        if DEBUG:
+                            print("デバッグモードのため、設定ボタンをクリックしません")
+                        else:
+                            apply_button = WebDriverWait(driver, 5).until(
+                                EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
+                            )
+                            print("設定ボタンを再度クリック中...")
+                            apply_button.click()
                         time.sleep(3)
                         print("設定ボタンを再度クリックしました")
                     except Exception as apply_e:
