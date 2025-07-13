@@ -50,30 +50,22 @@ class BulkCommands(commands.Cog):
             log(f"Bulk list error: {e}", "ERROR")
     
     @bulk_group.command(name="execute", description="一括更新実行")
-    async def bulk_execute(
-        self,
-        ctx,
-        domains: Optional[str] = None
-    ):
+    async def bulk_execute(self, ctx):
         """一括更新を実行"""
         await ctx.defer()
         
         try:
-            custom_domains = domains.split(",") if domains else None
             
-            embed = discord.Embed(
-                title="🔄 一括更新を開始しています...",
-                description="現在のIPアドレスで更新中です",
-                color=0xffaa00
-            )
-            await ctx.followup.send(embed=embed)
+            # 現在のIPアドレスを取得
+            from utils import get_current_ip
+            current_ip = get_current_ip(self.dns_manager.config.ip_services)
             
-            success, successful_domains, failed_domains = await self.dns_manager.bulk_update_records(custom_domains)
+            success, successful_domains, failed_domains = await self.dns_manager.bulk_update_records()
             
             if success:
                 embed = discord.Embed(
                     title="✅ 一括更新完了",
-                    description="すべてのドメインの更新が完了しました",
+                    description=f"すべてのドメインの更新が完了しました\n**更新先IPアドレス:** `{current_ip}`",
                     color=0x00ff00
                 )
                 if successful_domains:
@@ -85,7 +77,7 @@ class BulkCommands(commands.Cog):
             else:
                 embed = discord.Embed(
                     title="⚠️ 一括更新完了（一部失敗）",
-                    description="一部のドメインの更新に失敗しました",
+                    description=f"一部のドメインの更新に失敗しました\n**更新先IPアドレス:** `{current_ip}`",
                     color=0xffaa00
                 )
                 if successful_domains:
@@ -101,7 +93,7 @@ class BulkCommands(commands.Cog):
                         inline=False
                     )
             
-            await ctx.edit_original_response(embed=embed)
+            await ctx.followup.send(embed=embed)
             
         except Exception as e:
             await ctx.followup.send(f"❌ エラーが発生しました: {str(e)}", ephemeral=True)
