@@ -183,7 +183,7 @@ class CloudflareDNSManager:
             log(f"DNSレコード削除に失敗: {response}", "ERROR")
             return False
     
-    def update_record(self, name: str, content: str, record_type: Optional[str] = None) -> bool:
+    def update_record(self, name: str, content: str, record_type: Optional[str] = None, batch_mode: bool = False) -> bool:
         """既存のDNSレコードのIPアドレスを更新"""
         # 完全なレコード名を構築
         if not name.endswith(self.config.domain):
@@ -208,7 +208,10 @@ class CloudflareDNSManager:
         records = response.get('result', [])
         
         if not records:
-            log(f"レコードが見つかりません: {full_name}", "ERROR")
+            if batch_mode:
+                log(f"レコードが見つかりません: {full_name} (スキップ)", "WARNING")
+            else:
+                log(f"レコードが見つかりません: {full_name}", "ERROR")
             return False
         
         if len(records) > 1:
@@ -243,10 +246,12 @@ class CloudflareDNSManager:
         print(f"  Name: {new_data['name']}")
         print(f"  Content: {new_data['content']} (変更)")
         
-        confirm = input("\nこの内容で更新しますか？ (y/N): ").strip().lower()
-        if confirm != 'y':
-            log("更新をキャンセルしました")
-            return False
+        # バッチモードでない場合のみ確認を求める
+        if not batch_mode:
+            confirm = input("\nこの内容で更新しますか？ (y/N): ").strip().lower()
+            if confirm != 'y':
+                log("更新をキャンセルしました")
+                return False
         
         # レコード更新
         record_id = target_record['id']
@@ -260,47 +265,74 @@ class CloudflareDNSManager:
             log(f"DNSレコード更新に失敗: {response}", "ERROR")
             return False
     
-    def bulk_update_records(self, custom_domains: Optional[List[str]] = None) -> bool:
-        """リストに含まれるドメインのIPアドレスを現在のIPアドレスで一括更新"""
+    async def bulk_update_records(self, custom_domains: Optional[List[str]] = None) -> Tuple[bool, List[str], List[str]]:
+        """リストに含まれるドメインのIPアドレスを現在のIPアドレスで一括更新（並列処理）
+        
+        Returns:
+            Tuple[bool, List[str], List[str]]: (成功フラグ, 成功したドメイン, 失敗したドメイン)
+        """
+        import asyncio
+        
         # 使用するドメインリストを決定
         domains_to_update = custom_domains if custom_domains is not None else self.domain_manager.get_domains()
         
         if not domains_to_update:
             log("更新対象のドメインが指定されていません", "ERROR")
-            return False
+            return False, [], []
         
         # 現在のIPアドレスを取得
         log("現在のIPアドレスを取得中...")
         current_ip = get_current_ip(self.config.ip_services)
         if current_ip is None:
             log("現在のIPアドレスを取得できませんでした", "ERROR")
-            return False
+            return False, [], []
         
         log(f"取得したIPアドレス: {current_ip}")
         
-        # 各ドメインを更新
-        success_count = 0
+        # 各ドメインを並列更新
         failed_domains = []
+        successful_domains = []
         
         print(f"\n=== 一括更新開始 ===")
         print(f"対象ドメイン: {domains_to_update}")
         print(f"更新先IPアドレス: {current_ip}")
         print()
         
-        for domain in domains_to_update:
+        async def update_single_domain(domain: str) -> bool:
+            """単一ドメインの更新を非同期で実行"""
             log(f"ドメイン '{domain}' を更新中...")
             
             try:
-                success = self.update_record(domain, current_ip, "A")
+                # 非同期実行のためrun_in_executorを使用
+                loop = asyncio.get_event_loop()
+                success = await loop.run_in_executor(
+                    None, 
+                    self.update_record, 
+                    domain, 
+                    current_ip, 
+                    "A", 
+                    True
+                )
+                
                 if success:
-                    success_count += 1
+                    successful_domains.append(domain)
                     log(f"✅ '{domain}' の更新が完了しました")
+                    return True
                 else:
                     failed_domains.append(domain)
                     log(f"❌ '{domain}' の更新に失敗しました", "ERROR")
+                    return False
             except Exception as e:
                 failed_domains.append(domain)
                 log(f"❌ '{domain}' の更新中にエラーが発生: {e}", "ERROR")
+                return False
+        
+        # 全ドメインを並列処理
+        tasks = [update_single_domain(domain) for domain in domains_to_update]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # 結果を集計
+        success_count = sum(1 for result in results if result is True)
         
         # 結果のサマリー
         print(f"\n=== 一括更新結果 ===")
@@ -313,7 +345,7 @@ class CloudflareDNSManager:
         
         if success_count == len(domains_to_update):
             log("✅ 全てのドメインの更新が完了しました")
-            return True
+            return True, successful_domains, failed_domains
         else:
             log(f"⚠️  {len(failed_domains)}個のドメインの更新に失敗しました", "WARNING")
-            return False
+            return False, successful_domains, failed_domains

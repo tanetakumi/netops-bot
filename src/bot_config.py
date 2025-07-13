@@ -131,6 +131,31 @@ class BotConfig:
         """設定を再読み込み"""
         self._config = self._load_config()
     
+    def update_router_schedule(self, cron_expression: str, channel_id: int) -> bool:
+        """Routerスケジュール設定を更新"""
+        try:
+            # 現在の設定を読み込み
+            if not self._config:
+                self._config = {}
+            
+            # router.schedule セクションを更新
+            if 'router' not in self._config:
+                self._config['router'] = {}
+            if 'schedule' not in self._config['router']:
+                self._config['router']['schedule'] = {}
+            
+            self._config['router']['schedule']['cron'] = cron_expression
+            self._config['router']['schedule']['channel_id'] = str(channel_id)
+            
+            # ファイルに書き込み
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(self._config, f, ensure_ascii=False, indent=2)
+            
+            return True
+        except Exception as e:
+            print(f"Router schedule update error: {e}")
+            return False
+    
     # Config クラス互換のプロパティとメソッド
     @property
     def zone_id(self) -> str:

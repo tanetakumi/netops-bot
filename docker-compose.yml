@@ -14,7 +14,6 @@ services:
       - ROUTER_IP=${ROUTER_IP}
       - ROUTER_USER=${ROUTER_USER}
       - ROUTER_PASS=${ROUTER_PASS}
-      - ROUTER_LOG_CHANNEL_ID=${ROUTER_LOG_CHANNEL_ID}
       - DEBUG=${DEBUG}
     restart: unless-stopped
     container_name: netops-bot

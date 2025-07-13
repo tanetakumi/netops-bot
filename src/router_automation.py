@@ -205,11 +205,11 @@ try:
                         if DEBUG:
                             print("デバッグモードのため、設定ボタンをクリックしません")
                         else:
-                            apply_button = WebDriverWait(driver, 5).until(
-                                EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
-                            )
+                            # apply_button = WebDriverWait(driver, 5).until(
+                            #     EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
+                            # )
                             print("設定ボタンをクリック中...")
-                            apply_button.click()
+                            # apply_button.click()
                         time.sleep(3)
                         print("設定ボタンをクリックしました")
                     except Exception as apply_e:
@@ -233,11 +233,11 @@ try:
                         if DEBUG:
                             print("デバッグモードのため、設定ボタンをクリックしません")
                         else:
-                            apply_button = WebDriverWait(driver, 5).until(
-                                EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
-                            )
+                            # apply_button = WebDriverWait(driver, 5).until(
+                            #     EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
+                            # )
                             print("設定ボタンを再度クリック中...")
-                            apply_button.click()
+                            # apply_button.click()
                         time.sleep(3)
                         print("設定ボタンを再度クリックしました")
                     except Exception as apply_e:
