@@ -268,30 +268,44 @@ class RouterCommands(commands.Cog):
         try:
             log("Executing automatic bulk domain update after router update", "INFO")
             
-            # 一括更新開始のメッセージを送信
-            embed = discord.Embed(
-                title="🔄 ドメイン一括更新を開始しています...",
-                description="ルーター更新完了後、新しいIPアドレスでドメインを更新中です",
-                color=0xffaa00
-            )
-            await channel.send(embed=embed)
+            # 現在のIPアドレスを取得
+            from utils import get_current_ip
+            current_ip = get_current_ip(self.dns_manager.config.ip_services)
             
             # 一括更新を実行
-            success = self.dns_manager.bulk_update_records(None)
+            success, successful_domains, failed_domains = await self.dns_manager.bulk_update_records()
             
             if success:
                 embed = discord.Embed(
                     title="✅ ドメイン一括更新完了",
-                    description="すべてのドメインが新しいIPアドレスで更新されました",
+                    description=f"すべてのドメインが新しいIPアドレスで更新されました\n**更新先IPアドレス:** `{current_ip}`",
                     color=0x00ff00
                 )
+                if successful_domains:
+                    embed.add_field(
+                        name="✅ 更新成功",
+                        value=f"• " + f"\n• ".join([f"{d}.{self.dns_manager.config.domain}" for d in successful_domains]),
+                        inline=False
+                    )
                 log("Automatic bulk domain update completed successfully", "INFO")
             else:
                 embed = discord.Embed(
                     title="⚠️ ドメイン一括更新完了（一部失敗）",
-                    description="一部のドメインの更新に失敗しました",
+                    description=f"一部のドメインの更新に失敗しました\n**更新先IPアドレス:** `{current_ip}`",
                     color=0xffaa00
                 )
+                if successful_domains:
+                    embed.add_field(
+                        name="✅ 更新成功",
+                        value=f"• " + f"\n• ".join([f"{d}.{self.dns_manager.config.domain}" for d in successful_domains]),
+                        inline=False
+                    )
+                if failed_domains:
+                    embed.add_field(
+                        name="❌ 更新失敗",
+                        value=f"• " + f"\n• ".join([f"{d}.{self.dns_manager.config.domain}" for d in failed_domains]),
+                        inline=False
+                    )
                 log("Automatic bulk domain update completed with some failures", "WARNING")
             
             await channel.send(embed=embed)
