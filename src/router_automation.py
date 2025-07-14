@@ -34,15 +34,10 @@ webdriver_service = Service("/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=webdriver_service, options=options)
 
 try:
-    # ルーター管理画面にアクセス
     print("ルーター管理画面にアクセス中...")
     driver.get(f"http://{ROUTER_IP}")
     
-    # ページの読み込みを待機
     time.sleep(3)
-    
-    # ログイン情報を入力
-    print("ログイン情報を入力中...")
     
     # ユーザー名の入力欄を探して入力
     username_field = WebDriverWait(driver, 10).until(
@@ -60,7 +55,7 @@ try:
     login_button = driver.find_element(By.ID, "LoginId")
     login_button.click()
     
-    print("ログイン完了。管理画面を確認中...")
+    print("ログイン完了")
     time.sleep(5)
     
     # メインナビゲーションが表示されるまで待機
@@ -68,7 +63,6 @@ try:
         EC.presence_of_element_located((By.ID, "mainNavigator"))
     )
     
-    # インターネットメニューに直接移動
     print("インターネットメニューを探しています...")
     
     # ページが完全に読み込まれるまで待機
@@ -88,7 +82,6 @@ try:
         try:
             internet_menu = driver.find_element(By.XPATH, pattern)
             if internet_menu.is_enabled():
-                print(f"インターネットメニューを発見: {internet_menu.text}")
                 internet_menu.click()
                 time.sleep(3)
                 break
@@ -104,83 +97,68 @@ try:
             menu_page = menu.get_attribute('menupage')
             print(f"利用可能なメニュー: {menu.text} (ID: {menu_id}, MenuPage: {menu_page})")
     else:
-        # インターネットページに移動後の処理
-        print("インターネットページに移動しました")
+        print("インターネットページに移動")
         time.sleep(3)
         
         # インターネットページのHTMLを保存
         with open("/app/data/output/internet_page.html", "w", encoding="utf-8") as f:
             f.write(driver.page_source)
-        print("インターネットページのHTMLを保存しました: /app/data/output/internet_page.html")
         
         # スクリーンショットを撮影
         driver.save_screenshot("/app/data/output/internet_page.png")
-        print("インターネットページのスクリーンショットを保存しました: /app/data/output/internet_page.png")
         
         # WANセクションを選択
-        print("\n=== WANセクションを選択 ===")
+        print("WANセクションを選択")
         try:
             wan_menu = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.ID, "internetConfig"))
             )
-            print(f"WANメニューを発見: {wan_menu.text}")
             wan_menu.click()
             time.sleep(3)
             
             # WAN設定ページのHTMLを保存
             with open("/app/data/output/wan_config_page.html", "w", encoding="utf-8") as f:
                 f.write(driver.page_source)
-            print("WAN設定ページのHTMLを保存しました: /app/data/output/wan_config_page.html")
             
             # スクリーンショットを撮影
             driver.save_screenshot("/app/data/output/wan_config_page.png")
-            print("WAN設定ページのスクリーンショットを保存しました: /app/data/output/wan_config_page.png")
             
             # コミュファの項目を展開
-            print("\n=== コミュファの項目を展開 ===")
+            print("コミュファの項目を展開")
             try:
                 # コミュファの項目を探す
                 commufa_element = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.ID, "instName_Internet:1"))
                 )
-                print(f"コミュファ項目を発見: {commufa_element.text}")
                 
                 # 現在の状態を確認
                 commufa_classes = commufa_element.get_attribute('class')
-                print(f"コミュファ項目のクラス: {commufa_classes}")
                 
                 # 展開されているかチェック (instNameExp クラスがあるかどうか)
                 if 'instNameExp' in commufa_classes:
-                    print("コミュファ項目は既に展開されています")
+                    print("コミュファ項目は既に展開済")
                 else:
-                    print("コミュファ項目は折りたたまれています。展開中...")
+                    print("コミュファ項目を展開中...")
                     commufa_element.click()
                     time.sleep(3)
-                    
-                    # 展開後の状態を確認
-                    updated_classes = commufa_element.get_attribute('class')
-                    print(f"展開後のクラス: {updated_classes}")
                 
                 # 展開後のページを保存
                 with open("/app/data/output/commufa_expanded_page.html", "w", encoding="utf-8") as f:
                     f.write(driver.page_source)
-                print("コミュファ展開後のHTMLを保存しました: /app/data/output/commufa_expanded_page.html")
                 
                 # 展開後のスクリーンショットを撮影（メイン出力）
                 driver.save_screenshot("/app/data/output/commufa_expanded.png")
-                print("コミュファ展開後のスクリーンショットを保存しました: /app/data/output/commufa_expanded.png")
                 
                 # 接続モードの変更処理
-                print("\n=== 接続モードの変更 ===")
+                print("接続モードの変更")
                 try:
                     # 接続モードのプルダウンを探す
                     connection_mode_dropdown = WebDriverWait(driver, 10).until(
                         EC.element_to_be_clickable((By.ID, "ConnTrigger:1"))
                     )
-                    print(f"接続モードプルダウンを発見: {connection_mode_dropdown.get_attribute('value')}")
                     
                     # 1. 常時切断（Manual）に変更
-                    print("接続モードを常時切断（Manual）に変更中...")
+                    print("接続モードを常時切断に変更...")
                     
                     # Selectオブジェクトを作成
                     select = Select(connection_mode_dropdown)
@@ -189,63 +167,53 @@ try:
                     connection_mode_dropdown.click()
                     time.sleep(1)
                     driver.save_screenshot("/app/data/output/dropdown_opened.png")
-                    print("プルダウンを開いた瞬間のスクリーンショットを保存しました: /app/data/output/dropdown_opened.png")
                     
                     # 常時切断（Manual）を選択
                     select.select_by_value("Manual")
                     time.sleep(1)
-                    print("接続モードを常時切断に変更しました")
                     
                     # 常時切断に変更した瞬間のスクリーンショット
                     driver.save_screenshot("/app/data/output/changed_to_manual.png")
-                    print("常時切断に変更した瞬間のスクリーンショットを保存しました: /app/data/output/changed_to_manual.png")
                     
                     # 設定ボタンをクリック
                     try:
                         if DEBUG:
-                            print("デバッグモードのため、設定ボタンをクリックしません")
+                            print("(デバッグモード: 設定ボタンをスキップ)")
                         else:
                             apply_button = WebDriverWait(driver, 5).until(
                                 EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
                             )
-                            print("設定ボタンをクリック中...")
                             apply_button.click()
                         time.sleep(3)
-                        print("設定ボタンをクリックしました")
                     except Exception as apply_e:
-                        print(f"設定ボタンのクリックでエラー: {apply_e}")
+                        print(f"設定ボタンエラー: {apply_e}")
                     
                     time.sleep(5)
                     # 2. 常時接続（AlwaysOn）に戻す
-                    print("接続モードを常時接続（AlwaysOn）に戻し中...")
+                    print("接続モードを常時接続に戻し中...")
                     
                     # 常時接続（AlwaysOn）を選択
                     select.select_by_value("AlwaysOn")
                     time.sleep(1)
-                    print("接続モードを常時接続に戻しました")
                     
                     # 常時接続に戻した瞬間のスクリーンショット
                     driver.save_screenshot("/app/data/output/changed_to_alwayson.png")
-                    print("常時接続に戻した瞬間のスクリーンショットを保存しました: /app/data/output/changed_to_alwayson.png")
                     
                     # 再度設定ボタンをクリック
                     try:
                         if DEBUG:
-                            print("デバッグモードのため、設定ボタンをクリックしません")
+                            print("(デバッグモード: 設定ボタンをスキップ)")
                         else:
                             apply_button = WebDriverWait(driver, 5).until(
                                 EC.element_to_be_clickable((By.ID, "Btn_apply_internet:1"))
                             )
-                            print("設定ボタンを再度クリック中...")
                             apply_button.click()
                         time.sleep(3)
-                        print("設定ボタンを再度クリックしました")
                     except Exception as apply_e:
-                        print(f"設定ボタンの再クリックでエラー: {apply_e}")
+                        print(f"設定ボタン再クリックエラー: {apply_e}")
                     
                     # 最終状態のスクリーンショットを撮影
                     driver.save_screenshot("/app/data/output/connection_mode_changed.png")
-                    print("接続モード変更後のスクリーンショットを保存しました: /app/data/output/connection_mode_changed.png")
                     
                 except Exception as conn_e:
                     print(f"接続モードの変更でエラーが発生: {conn_e}")
@@ -267,10 +235,7 @@ try:
                     except Exception as elem_e:
                         print(f"設定要素の確認でエラー: {elem_e}")
                 
-                # 処理完了メッセージ
-                print("\n=== 処理完了 ===")
-                print("コミュファの項目が正常に展開され、接続モードの変更処理が完了しました。")
-                print("スクリーンショットが /app/data/output/commufa_expanded.png に保存されました。")
+                print("\n処理完了: コミュファ項目展開・接続モード変更完了")
                 
             except Exception as commufa_e:
                 print(f"コミュファ項目の展開でエラーが発生: {commufa_e}")
@@ -324,7 +289,5 @@ except Exception as e:
     print("エラー時のスクリーンショットを保存しました: /app/data/output/error_screenshot.png")
     
 finally:
-    # ブラウザを閉じる
     driver.quit()
-    print("ブラウザを閉じました。")
-    print("スクリプトの実行が完了しました。")
+    print("スクリプト実行完了")
