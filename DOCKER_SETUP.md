@@ -12,7 +12,6 @@ cloudflare/
 ├── .env                  # 環境変数設定（作成が必要）
 ├── docker-start.sh       # Docker起動スクリプト
 ├── requirements.txt      # Python依存関係
-├── run_bot.py            # Discord botローカル実行
 ├── src/                  # Pythonソースコード
 │   ├── discord_bot.py    # Discord botメインファイル
 │   ├── dns_manager.py    # DNS管理
@@ -80,11 +79,6 @@ docker-compose logs -f cloudflare-discord-bot
 docker-compose exec cloudflare-discord-bot bash
 ```
 
-### ローカル実行（Docker不使用）
-```bash
-# Discord bot起動（すべての機能を含む）
-python run_bot.py
-```
 
 ### イメージの更新
 ```bash

@@ -65,9 +65,11 @@ class DNSCommands(commands.Cog):
             
             main_embed.add_field(name="📊 合計", value=f"{len(records)} 件", inline=True)
             
-            # レコードを5件ずつ表示
-            records_per_page = 5
+            # レコードを20件ずつ表示（embedの制限は25フィールド）
+            records_per_page = 20
             total_pages = (len(records) + records_per_page - 1) // records_per_page
+            
+            embeds = []
             
             for page in range(total_pages):
                 start_idx = page * records_per_page
@@ -98,8 +100,8 @@ class DNSCommands(commands.Cog):
                     else:
                         short_name = name
                     
-                    # フィールドの値を構築
-                    field_value = f"**Content:** `{content}`\n**TTL:** {ttl}\n**Proxied:** {'Yes' if proxied else 'No'}"
+                    # フィールドの値を構築（より簡潔に）
+                    field_value = f"`{content}` | TTL: {ttl} | Proxied: {'Yes' if proxied else 'No'}"
                     
                     # レコードタイプのアイコン
                     type_icons = {
@@ -116,15 +118,22 @@ class DNSCommands(commands.Cog):
                     embed.add_field(
                         name=f"{type_icon} {short_name} ({record_type})",
                         value=field_value,
-                        inline=False
+                        inline=True
                     )
                 
-                if page < total_pages - 1:
-                    embed.set_footer(text=f"Page {page + 1}/{total_pages} - 続きがあります")
-                else:
-                    embed.set_footer(text=f"Page {page + 1}/{total_pages} - 最後のページ")
+                if total_pages > 1:
+                    embed.set_footer(text=f"Page {page + 1}/{total_pages}")
                 
-                await ctx.followup.send(embed=embed)
+                embeds.append(embed)
+            
+            # 最大10個のembedまで一括送信、それ以上は分割
+            max_embeds_per_message = 10
+            for i in range(0, len(embeds), max_embeds_per_message):
+                batch_embeds = embeds[i:i + max_embeds_per_message]
+                if i == 0:
+                    await ctx.followup.send(embeds=batch_embeds)
+                else:
+                    await ctx.followup.send(embeds=batch_embeds)
                 
         except Exception as e:
             await ctx.followup.send(f"❌ エラーが発生しました: {str(e)}", ephemeral=True)

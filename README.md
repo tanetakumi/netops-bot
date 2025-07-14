@@ -93,7 +93,6 @@ python discord_bot.py
 
 ```
 cloudflare/
-├── run_bot.py               # ローカル実行エントリーポイント
 ├── Dockerfile              # Docker設定
 ├── docker-compose.yml      # Docker Compose設定
 ├── requirements.txt        # 依存関係
