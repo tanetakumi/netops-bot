@@ -98,11 +98,8 @@ class DNSCommands(commands.Cog):
                     else:
                         short_name = name
                     
-                    # プロキシ状態のアイコン
-                    proxy_icon = "🟠" if proxied else "⚪"
-                    
                     # フィールドの値を構築
-                    field_value = f"**Content:** `{content}`\n**TTL:** {ttl}\n**Proxied:** {proxy_icon} {'Yes' if proxied else 'No'}"
+                    field_value = f"**Content:** `{content}`\n**TTL:** {ttl}\n**Proxied:** {'Yes' if proxied else 'No'}"
                     
                     # レコードタイプのアイコン
                     type_icons = {
@@ -200,14 +197,13 @@ class DNSCommands(commands.Cog):
     async def dns_delete(
         self,
         ctx,
-        name: str,
-        record_type: Optional[str] = None
+        name: str
     ):
         """DNSレコードを削除"""
         await ctx.defer()
         
         try:
-            success = self.dns_manager.delete_record(name, record_type)
+            success = self.dns_manager.delete_record(name)
             
             if success:
                 embed = discord.Embed(

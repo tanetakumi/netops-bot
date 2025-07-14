@@ -80,14 +80,9 @@ class CloudflareDNSManager:
         success, response = self._make_request("GET", f"/zones/{self.config.zone_id}/dns_records?name={full_name}")
         
         if success and response.get('result'):
-            print(f"\n警告: レコード '{full_name}' は既に存在します:")
+            log(f"警告: レコード '{full_name}' は既に存在します", "WARNING")
             for record in response['result']:
-                print(f"  {record['type']} {record['name']} {record['content']}")
-            
-            confirm = input("\n続行しますか？ (y/N): ").strip().lower()
-            if confirm != 'y':
-                log("作成をキャンセルしました")
-                return False
+                log(f"  {record['type']} {record['name']} {record['content']}", "WARNING")
         
         # レコード作成
         data = {
@@ -143,33 +138,14 @@ class CloudflareDNSManager:
             return False
         
         if len(records) > 1:
-            print(f"\n複数のレコードが見つかりました:")
+            log(f"複数のレコードが見つかりました。最初のレコードを削除します", "WARNING")
             for i, record in enumerate(records):
-                print(f"  {i+1}. {record['type']} {record['name']} {record['content']}")
-            
-            try:
-                choice = int(input("\n削除するレコードの番号を選択 (1-{}): ".format(len(records))))
-                if 1 <= choice <= len(records):
-                    target_record = records[choice - 1]
-                else:
-                    log("無効な選択です", "ERROR")
-                    return False
-            except ValueError:
-                log("無効な入力です", "ERROR")
-                return False
+                log(f"  {i+1}. {record['type']} {record['name']} {record['content']}")
+            target_record = records[0]
         else:
             target_record = records[0]
         
-        # 削除確認
-        print(f"\n削除対象レコード:")
-        print(f"  Type: {target_record['type']}")
-        print(f"  Name: {target_record['name']}")
-        print(f"  Content: {target_record['content']}")
-        
-        confirm = input("\nこのレコードを削除しますか？ (y/N): ").strip().lower()
-        if confirm != 'y':
-            log("削除をキャンセルしました")
-            return False
+        log(f"削除対象レコード: {target_record['type']} {target_record['name']} {target_record['content']}")
         
         # レコード削除
         record_id = target_record['id']
@@ -225,12 +201,6 @@ class CloudflareDNSManager:
             log(f"無効なIPv4アドレス: {content}", "ERROR")
             return False
         
-        # 現在の設定を表示
-        print(f"\n現在の設定:")
-        print(f"  Type: {target_record['type']}")
-        print(f"  Name: {target_record['name']}")
-        print(f"  Content: {target_record['content']}")
-        
         # 新しい値の準備（IPアドレスのみ更新）
         new_data = {
             "type": target_record['type'],
@@ -240,18 +210,9 @@ class CloudflareDNSManager:
             "proxied": target_record['proxied']
         }
         
-        # 変更点を表示
-        print(f"\n変更後の設定:")
-        print(f"  Type: {new_data['type']}")
-        print(f"  Name: {new_data['name']}")
-        print(f"  Content: {new_data['content']} (変更)")
-        
-        # バッチモードでない場合のみ確認を求める
+        # バッチモードでない場合は変更内容をログに出力
         if not batch_mode:
-            confirm = input("\nこの内容で更新しますか？ (y/N): ").strip().lower()
-            if confirm != 'y':
-                log("更新をキャンセルしました")
-                return False
+            log(f"更新内容: {target_record['content']} -> {content}")
         
         # レコード更新
         record_id = target_record['id']

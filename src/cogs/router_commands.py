@@ -135,17 +135,13 @@ class RouterCommands(commands.Cog):
     async def scheduler_task(self):
         """スケジュールされたタスクを実行"""
         try:
-            log("Scheduler task running...", "INFO")
             schedule_config = self.bot_config.get_router_schedule_config()
-            log(f"Schedule config: {schedule_config}", "INFO")
             
             if not schedule_config or not schedule_config.get("cron"):
-                log("No schedule config or cron expression found", "INFO")
                 return
             
             cron_expr = schedule_config["cron"]
             channel_id = schedule_config.get("channel_id")
-            log(f"Cron expression: {cron_expr}, Channel ID: {channel_id}", "INFO")
             
             if not channel_id or not croniter.is_valid(cron_expr):
                 log("Invalid channel ID or cron expression", "ERROR")
@@ -158,21 +154,15 @@ class RouterCommands(commands.Cog):
             cron = croniter(cron_expr, normalized_time - datetime.timedelta(minutes=1))
             next_run = cron.get_next(datetime.datetime)
             
-            log(f"Current time: {current_time}, Normalized: {normalized_time}", "INFO")
-            log(f"Next scheduled run: {next_run}", "INFO")
-            
             if next_run == normalized_time:
-                log("Cron time matches! Checking execution conditions...", "INFO")
+                log("Cron time matches! Executing scheduled router update...", "INFO")
                 if (self.last_execution_time is None or 
                     (current_time - self.last_execution_time).total_seconds() >= 60):
                     
-                    log("Executing scheduled router update...", "INFO")
                     self.last_execution_time = current_time
                     await self.execute_scheduled_router_update(channel_id, schedule_config)
                 else:
                     log("Skipping execution - too soon after last execution", "INFO")
-            else:
-                log("Cron time does not match current time", "INFO")
                     
         except Exception as e:
             log(f"Scheduler task error: {e}", "ERROR")
