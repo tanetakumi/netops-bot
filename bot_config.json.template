@@ -1,0 +1,34 @@
+{
+  "cloudflare": {
+    "zone_id": "${CLOUDFLARE_ZONE_ID}",
+    "api_token": "${CLOUDFLARE_API_TOKEN}",
+    "domain": "${CLOUDFLARE_DOMAIN}",
+    "base_url": "https://api.cloudflare.com/client/v4",
+    "request_timeout": 30,
+    "ip_services": [
+      "https://ipv4.icanhazip.com",
+      "https://api.ipify.org",
+      "https://checkip.amazonaws.com"
+    ]
+  },
+  "dns": {
+    "target_domains": [
+      "ama",
+      "taichi", 
+      "test",
+      "hello",
+      "test2"
+    ]
+  },
+  "router": {
+    "connection": {
+      "ip": "${ROUTER_IP}",
+      "username": "${ROUTER_USER}",
+      "password": "${ROUTER_PASS}"
+    },
+    "schedule": {
+      "cron": "33 15 * * *",
+      "channel_id": "1247646471818313769"
+    }
+  }
+}

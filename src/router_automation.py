@@ -109,13 +109,13 @@ try:
         time.sleep(3)
         
         # インターネットページのHTMLを保存
-        with open("/app/output/internet_page.html", "w", encoding="utf-8") as f:
+        with open("/app/data/output/internet_page.html", "w", encoding="utf-8") as f:
             f.write(driver.page_source)
-        print("インターネットページのHTMLを保存しました: /app/output/internet_page.html")
+        print("インターネットページのHTMLを保存しました: /app/data/output/internet_page.html")
         
         # スクリーンショットを撮影
-        driver.save_screenshot("/app/output/internet_page.png")
-        print("インターネットページのスクリーンショットを保存しました: /app/output/internet_page.png")
+        driver.save_screenshot("/app/data/output/internet_page.png")
+        print("インターネットページのスクリーンショットを保存しました: /app/data/output/internet_page.png")
         
         # WANセクションを選択
         print("\n=== WANセクションを選択 ===")
@@ -128,13 +128,13 @@ try:
             time.sleep(3)
             
             # WAN設定ページのHTMLを保存
-            with open("/app/output/wan_config_page.html", "w", encoding="utf-8") as f:
+            with open("/app/data/output/wan_config_page.html", "w", encoding="utf-8") as f:
                 f.write(driver.page_source)
-            print("WAN設定ページのHTMLを保存しました: /app/output/wan_config_page.html")
+            print("WAN設定ページのHTMLを保存しました: /app/data/output/wan_config_page.html")
             
             # スクリーンショットを撮影
-            driver.save_screenshot("/app/output/wan_config_page.png")
-            print("WAN設定ページのスクリーンショットを保存しました: /app/output/wan_config_page.png")
+            driver.save_screenshot("/app/data/output/wan_config_page.png")
+            print("WAN設定ページのスクリーンショットを保存しました: /app/data/output/wan_config_page.png")
             
             # コミュファの項目を展開
             print("\n=== コミュファの項目を展開 ===")
@@ -162,13 +162,13 @@ try:
                     print(f"展開後のクラス: {updated_classes}")
                 
                 # 展開後のページを保存
-                with open("/app/output/commufa_expanded_page.html", "w", encoding="utf-8") as f:
+                with open("/app/data/output/commufa_expanded_page.html", "w", encoding="utf-8") as f:
                     f.write(driver.page_source)
-                print("コミュファ展開後のHTMLを保存しました: /app/output/commufa_expanded_page.html")
+                print("コミュファ展開後のHTMLを保存しました: /app/data/output/commufa_expanded_page.html")
                 
                 # 展開後のスクリーンショットを撮影（メイン出力）
-                driver.save_screenshot("/app/output/commufa_expanded.png")
-                print("コミュファ展開後のスクリーンショットを保存しました: /app/output/commufa_expanded.png")
+                driver.save_screenshot("/app/data/output/commufa_expanded.png")
+                print("コミュファ展開後のスクリーンショットを保存しました: /app/data/output/commufa_expanded.png")
                 
                 # 接続モードの変更処理
                 print("\n=== 接続モードの変更 ===")
@@ -188,8 +188,8 @@ try:
                     # プルダウンを開いた瞬間のスクリーンショット（プルダウンクリック前）
                     connection_mode_dropdown.click()
                     time.sleep(1)
-                    driver.save_screenshot("/app/output/dropdown_opened.png")
-                    print("プルダウンを開いた瞬間のスクリーンショットを保存しました: /app/output/dropdown_opened.png")
+                    driver.save_screenshot("/app/data/output/dropdown_opened.png")
+                    print("プルダウンを開いた瞬間のスクリーンショットを保存しました: /app/data/output/dropdown_opened.png")
                     
                     # 常時切断（Manual）を選択
                     select.select_by_value("Manual")
@@ -197,8 +197,8 @@ try:
                     print("接続モードを常時切断に変更しました")
                     
                     # 常時切断に変更した瞬間のスクリーンショット
-                    driver.save_screenshot("/app/output/changed_to_manual.png")
-                    print("常時切断に変更した瞬間のスクリーンショットを保存しました: /app/output/changed_to_manual.png")
+                    driver.save_screenshot("/app/data/output/changed_to_manual.png")
+                    print("常時切断に変更した瞬間のスクリーンショットを保存しました: /app/data/output/changed_to_manual.png")
                     
                     # 設定ボタンをクリック
                     try:
@@ -225,8 +225,8 @@ try:
                     print("接続モードを常時接続に戻しました")
                     
                     # 常時接続に戻した瞬間のスクリーンショット
-                    driver.save_screenshot("/app/output/changed_to_alwayson.png")
-                    print("常時接続に戻した瞬間のスクリーンショットを保存しました: /app/output/changed_to_alwayson.png")
+                    driver.save_screenshot("/app/data/output/changed_to_alwayson.png")
+                    print("常時接続に戻した瞬間のスクリーンショットを保存しました: /app/data/output/changed_to_alwayson.png")
                     
                     # 再度設定ボタンをクリック
                     try:
@@ -244,8 +244,8 @@ try:
                         print(f"設定ボタンの再クリックでエラー: {apply_e}")
                     
                     # 最終状態のスクリーンショットを撮影
-                    driver.save_screenshot("/app/output/connection_mode_changed.png")
-                    print("接続モード変更後のスクリーンショットを保存しました: /app/output/connection_mode_changed.png")
+                    driver.save_screenshot("/app/data/output/connection_mode_changed.png")
+                    print("接続モード変更後のスクリーンショットを保存しました: /app/data/output/connection_mode_changed.png")
                     
                 except Exception as conn_e:
                     print(f"接続モードの変更でエラーが発生: {conn_e}")
@@ -270,7 +270,7 @@ try:
                 # 処理完了メッセージ
                 print("\n=== 処理完了 ===")
                 print("コミュファの項目が正常に展開され、接続モードの変更処理が完了しました。")
-                print("スクリーンショットが /app/output/commufa_expanded.png に保存されました。")
+                print("スクリーンショットが /app/data/output/commufa_expanded.png に保存されました。")
                 
             except Exception as commufa_e:
                 print(f"コミュファ項目の展開でエラーが発生: {commufa_e}")
@@ -286,8 +286,8 @@ try:
                     print("代替方法でコミュファ項目をクリックしました")
                     
                     # 代替方法での結果を保存
-                    driver.save_screenshot("/app/output/commufa_expanded_alt.png")
-                    print("代替方法での結果を保存しました: /app/output/commufa_expanded_alt.png")
+                    driver.save_screenshot("/app/data/output/commufa_expanded_alt.png")
+                    print("代替方法での結果を保存しました: /app/data/output/commufa_expanded_alt.png")
                     
                 except Exception as alt_e:
                     print(f"代替方法でもエラー: {alt_e}")
@@ -320,8 +320,8 @@ try:
     
 except Exception as e:
     print(f"エラーが発生しました: {e}")
-    driver.save_screenshot("/app/output/error_screenshot.png")
-    print("エラー時のスクリーンショットを保存しました: /app/output/error_screenshot.png")
+    driver.save_screenshot("/app/data/output/error_screenshot.png")
+    print("エラー時のスクリーンショットを保存しました: /app/data/output/error_screenshot.png")
     
 finally:
     # ブラウザを閉じる

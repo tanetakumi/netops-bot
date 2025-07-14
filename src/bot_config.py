@@ -17,11 +17,14 @@ class BotConfig:
     
     def __init__(self, config_file: str = "bot_config.json"):
         self.config_file = config_file
-        # 設定ファイルはルートディレクトリ（Dockerコンテナ内では /app/）に配置
-        if os.path.exists(f"/app/{config_file}"):
-            self.config_path = f"/app/{config_file}"
+        # 設定ファイルは /app/data/ に配置（Docker環境）
+        if os.path.exists(f"/app/data/{config_file}"):
+            self.config_path = f"/app/data/{config_file}"
+        # 開発環境用（netopsフォルダ内）
+        elif os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), "netops", config_file)):
+            self.config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "netops", config_file)
         else:
-            # 開発環境用（ルートディレクトリの一つ上）
+            # フォールバック（ルートディレクトリ）
             self.config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), config_file)
         self._config = self._load_config()
     
@@ -130,6 +133,28 @@ class BotConfig:
     def reload(self):
         """設定を再読み込み"""
         self._config = self._load_config()
+    
+    def update_target_domains(self, domains: List[str]) -> bool:
+        """対象ドメインリストを更新"""
+        try:
+            # 現在の設定を読み込み
+            if not self._config:
+                self._config = {}
+            
+            # dns.target_domains セクションを更新
+            if 'dns' not in self._config:
+                self._config['dns'] = {}
+            
+            self._config['dns']['target_domains'] = domains
+            
+            # ファイルに書き込み
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(self._config, f, ensure_ascii=False, indent=2)
+            
+            return True
+        except Exception as e:
+            print(f"Target domains update error: {e}")
+            return False
     
     def update_router_schedule(self, cron_expression: str, channel_id: int) -> bool:
         """Routerスケジュール設定を更新"""

@@ -3,8 +3,7 @@ services:
     build: .
     network_mode: host
     volumes:
-      - ./output:/app/output
-      - ./bot_config.json:/app/bot_config.json
+      - ./netops:/app/data
     environment:
       - TZ=Asia/Tokyo
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}

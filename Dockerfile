@@ -8,6 +8,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     python3-distutils \
     wget \
+    gettext-base \
     && rm -rf /var/lib/apt/lists/* \
     && wget https://bootstrap.pypa.io/get-pip.py \
     && python3 get-pip.py \
@@ -22,14 +23,15 @@ RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 # アプリケーションファイルをコピー
 COPY src/ ./src/
-COPY bot_config.json ./
+COPY bot_config.json.template ./
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
-# 出力ディレクトリを作成（ルーター自動化用）
-RUN mkdir -p /app/output
 
 # Pythonパスを設定
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
 
-# Discord botを実行（デフォルト）
+# エントリーポイントとデフォルトコマンドを設定
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["python3", "-u", "src/discord_bot.py"]

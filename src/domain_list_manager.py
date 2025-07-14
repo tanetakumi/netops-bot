@@ -22,13 +22,16 @@ class DomainListManager:
         return domains
     
     def _save_target_domains(self, domains: List[str] = None) -> bool:
-        """ドメインリストを保存（統合設定では手動でbot_config.jsonを編集）"""
+        """ドメインリストをbot_config.jsonに保存"""
         if domains is None:
             domains = self.target_domains
         
-        log(f"統合設定では手動でbot_config.jsonを編集してください: {domains}", "WARNING")
-        log("現在の設定ファイルでは自動保存をサポートしていません", "WARNING")
-        return False
+        try:
+            # bot_config.jsonに保存
+            return self.config.update_target_domains(domains)
+        except Exception as e:
+            log(f"ドメインリスト保存エラー: {e}", "ERROR")
+            return False
     
     def list_domains(self) -> bool:
         """一括更新対象のドメインリストを表示"""
