@@ -217,6 +217,10 @@ class RouterCommands(commands.Cog):
                 
                 log(f"Scheduled router update completed successfully - Channel: {channel_id}", "INFO")
                 
+                # Wait 20 seconds before executing bulk domain update
+                log("Waiting 20 seconds before bulk domain update...", "INFO")
+                await asyncio.sleep(20)
+                
                 # Automatically trigger bulk domain update after successful router update
                 await self.execute_bulk_domain_update(channel)
             else:
