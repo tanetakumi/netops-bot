@@ -208,18 +208,20 @@ class RouterCommands(commands.Cog):
             if result.returncode == 0:
                 embed = discord.Embed(
                     title="✅ スケジュールされたルーター更新完了",
-                    description="コミュファ光の接続設定更新が完了しました",
+                    description="コミュファ光の接続設定更新が完了しました\n\n3分後にドメイン一括更新を実行します...",
                     color=0x00ff00
                 )
                 if result.stdout:
                     output = result.stdout[-1000:] if len(result.stdout) > 1000 else result.stdout
                     embed.add_field(name="実行結果", value=f"```\n{output}\n```", inline=False)
                 
+                # Send router update completion message immediately
+                await channel.send(embed=embed)
                 log(f"Scheduled router update completed successfully - Channel: {channel_id}", "INFO")
                 
-                # Wait 20 seconds before executing bulk domain update
-                log("Waiting 20 seconds before bulk domain update...", "INFO")
-                await asyncio.sleep(20)
+                # Wait 3 minutes before executing bulk domain update
+                log("Waiting 3 minutes before bulk domain update...", "INFO")
+                await asyncio.sleep(180)
                 
                 # Automatically trigger bulk domain update after successful router update
                 await self.execute_bulk_domain_update(channel)
@@ -233,9 +235,9 @@ class RouterCommands(commands.Cog):
                     error_output = result.stderr[-1000:] if len(result.stderr) > 1000 else result.stderr
                     embed.add_field(name="エラー詳細", value=f"```\n{error_output}\n```", inline=False)
                 
+                # Send router update failure message immediately
+                await channel.send(embed=embed)
                 log(f"Scheduled router update failed - Channel: {channel_id}, Error: {result.stderr}", "ERROR")
-            
-            await channel.send(embed=embed)
             
         except subprocess.TimeoutExpired:
             embed = discord.Embed(
